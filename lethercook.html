@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LetHerCook - Nandini's Recipes</title>
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: { DEFAULT: '#0b0b0f' },
+            foreground: { DEFAULT: '#e5e7eb' },
+            muted: { DEFAULT: '#9aa4b2' },
+            card: { DEFAULT: '#0f1115' },
+            border: '#1f2430',
+            primary: { DEFAULT: '#0f6b2f', foreground: '#04150f' },
+            ring: '#0f6b2f'
+          },
+          boxShadow: {
+            'soft': '0 4px 24px rgba(0,0,0,0.25)'
+          },
+          borderRadius: {
+            xl: '1rem',
+            '2xl': '1.25rem'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* --- Minimal shadcn/ui-like tokens for vanilla HTML --- */
+    :root {
+      --radius: 12px;
+    }
+    .container-max { max-width: 1120px; }
+    .card { background: #0f1115; border: 1px solid #1f2430; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,.25); }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border-radius: calc(var(--radius) - 6px); border:1px solid #1f2430; padding:.6rem .9rem; font-weight:600; }
+    .btn-primary { background:#0f6b2f; color:#04150f; border-color:#0f6b2f; }
+    .btn-outline { background:transparent; color:#e5e7eb; }
+    .btn:hover { filter: brightness(1.03); }
+    .input, .select { background:#0b0b0f; border:1px solid #1f2430; border-radius: calc(var(--radius) - 6px); padding:.65rem .8rem; color:#e5e7eb; outline:none; }
+    .input:focus, .select:focus { box-shadow: 0 0 0 2px #0f6b2f; border-color:#0f6b2f; }
+    .label { color:#9aa4b2; font-size:.85rem; }
+    .badge { border:1px solid #1f2430; background:#0b0b0f; border-radius:9999px; padding:.25rem .6rem; font-size:.8rem; color:#9aa4b2; }
+    .kbd { border:1px solid #1f2430; background:#0b0b0f; border-bottom-width:3px; padding:.1rem .35rem; border-radius:.4rem; font-size:.75rem; color:#9aa4b2; }
+    .visually-hidden { position:absolute; clip:rect(0 0 0 0); clip-path:inset(50%); width:1px; height:1px; overflow:hidden; white-space:nowrap; }
+  </style>
+</head>
+<body class="bg-background text-foreground min-h-screen">
+  <!-- Header -->
+  <header class="border-b border-border sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+    <div class="mx-auto container-max px-4 py-4 flex items-center gap-4">
+      <a href="#/" class="flex items-center gap-3 font-semibold tracking-tight">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft">🥘</span>
+        <span class="text-xl">LetHerCook</span>
+      </a>
+      <div class="ml-auto flex items-center gap-2">
+        <a href="#/" class="btn btn-outline">Home</a>
+        <button id="open-about" class="btn btn-outline">About</button>
+        <a href="https://github.com/new" target="_blank" class="btn btn-primary">Deploy on GitHub Pages</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="mx-auto container-max px-4 py-8">
+    <!-- Search Bar -->
+    <section id="searchSection" class="mb-6">
+      <label class="label" for="searchInput">Search recipes
+        <span class="ml-2 badge">name, ingredients, method</span>
+      </label>
+      <div class="mt-2 flex gap-2">
+        <input id="searchInput" class="input w-full" placeholder="Type to search (⌘/Ctrl + K)" />
+        <button id="clearSearch" class="btn btn-outline" title="Clear search"><span class="kbd">Esc</span></button>
+      </div>
+    </section>
+
+    <!-- Home Grid -->
+    <section id="homeView" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></section>
+
+    <!-- Recipe View -->
+    <section id="recipeView" class="hidden">
+      <article id="recipeCard" class="card p-5 md:p-8">
+        <div class="flex flex-col md:flex-row gap-6">
+          <img id="recipeImage" alt="Recipe image" class="w-full md:w-80 h-56 md:h-56 object-cover rounded-xl border border-border" />
+          <div class="flex-1">
+            <h1 id="recipeTitle" class="text-2xl md:text-3xl font-semibold tracking-tight"></h1>
+            <p id="recipeTagline" class="text-muted mt-1"></p>
+
+            <!-- Controls: Servings + Unit -->
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="label" for="servingsInput">Servings</label>
+                <div class="flex items-center gap-2">
+                  <button id="servingMinus" class="btn btn-outline" aria-label="Decrease servings">−</button>
+                  <input id="servingsInput" type="number" min="1" step="1" class="input w-24 bg-white text-black" />
+                  <button id="servingPlus" class="btn btn-outline" aria-label="Increase servings">+</button>
+                </div>
+              </div>
+              <div>
+                <label class="label" for="unitSelect">Units</label>
+                <select id="unitSelect" class="select w-full bg-white text-black">
+                  <option value="g">grams (g)</option>
+                  <option value="mg">milligrams (mg)</option>
+                  <option value="oz">ounces (oz)</option>
+                  <option value="lb">pounds (lb)</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <span id="nonConvertibleHint" class="text-sm text-muted">Non-convertible items are preserved (e.g., cups, leaves).</span>
+              </div>
+            </div>
+
+            <!-- Macros -->
+            <div class="mt-5">
+              <h2 class="text-lg font-semibold">Nutrition (per serving)</h2>
+              <div id="macroPills" class="mt-2 flex flex-wrap gap-2"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Ingredients -->
+          <section>
+            <h3 class="text-lg font-semibold">Ingredients</h3>
+            <ul id="ingredientList" class="mt-3 space-y-2"></ul>
+          </section>
+          <!-- Method -->
+          <section>
+            <h3 class="text-lg font-semibold">Preparation</h3>
+            <ol id="methodList" class="mt-3 space-y-3 list-decimal list-inside"></ol>
+          </section>
+        </div>
+
+        <div class="mt-8 flex flex-wrap gap-2">
+          <a id="backHome" href="#/" class="btn btn-outline">← Back</a>
+          <a id="openPrint" href="#" class="btn btn-primary">🖨️ Print</a>
+          <a id="openShare" href="#" class="btn btn-outline">🔗 Share</a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-12 border-t border-border">
+    <div class="mx-auto container-max px-4 py-10 text-center text-muted">
+      <p>Just a passion project to make nutrition delicious and accessible to my friends and family 💖</p>
+    </div>
+  </footer>
+
+  <!-- Data store (edit/extend to add recipes) -->
+  <script id="recipes-json" type="application/json">{
+    "recipes": [
+	 {
+	  "slug": "peanut-chutney",
+	  "name": "Peanut Chutney",
+	  "tagline": "South Indian | Chutney | Vegetarian",
+	  "date": "2025-10-02",
+	  "image": "https://themagicsaucepan.com/wp-content/uploads/2018/06/20180607-Peanut-chutney-0575-500x375.jpg",
+	  "baseServings": 4,
+	  "macrosPerServing": { "calories": 196, "protein_g": 6.5, "carbs_g": 11, "fat_g": 15 },
+	  "ingredients": [
+		{ "name": "Avocado oil", "amount": 2, "unit": "tsp", "unitType": "other" },
+		{ "name": "Tomatoes - diced", "amount": 2, "unit": "pieces", "unitType": "other" },
+		{ "name": "Peanuts", "amount": 75, "unit": "g", "unitType": "mass" },
+		{ "name": "Garlic - finely chopped", "amount": 2, "unit": "cloves", "unitType": "other" },
+		{ "name": "Dried red chillies", "amount": 2, "unit": "pieces", "unitType": "other" },
+		{ "name": "Salt", "amount": 0.5, "unit": "tsp", "unitType": "other" },
+		{ "name": "Mustard seeds", "amount": 2, "unit": "tsp", "unitType": "other" },
+		{ "name": "Urad dal", "amount": 1, "unit": "tbsp", "unitType": "other" },
+		{ "name": "Curry leaves", "amount": 6, "unit": "leaves", "unitType": "other" }
+	  ],
+	  "method": [
+		"Heat 0.5 tsp avocado oil in a pan. Add 1 tsp mustard seeds 3 curry leaves.",
+		"Add roughly chopped tomatoes and sauté until soft and pulpy.",
+		"Transfer tomatoes to a plate to cool. Heat 0.5 tsp more oil in the same pan.",
+		"Fry peanuts, garlic, and red chillies for 5 minutes.",
+		"Transfer to the plate with tomatoes and let everything cool.",
+		"Add contents to a blender with salt and pulse until smooth.",
+		"For tempering: Heat 1 tsp oil in a tadka pan, add 1 tsp mustard seeds, urad dal, and 2-3 curry leaves.",
+		"Let ingredients crackle and oil bubble. Pour over chutney before serving."
+	  ],
+	  "notes": "Pairs well with idli, dosa, or upma. Adjust spice level by varying red chillies."
+	},
+      {
+        "slug": "paneer-tikka-wrap",
+        "name": "Paneer Tikka Wrap",
+        "tagline": "Smoky paneer, crisp veggies, tangy chutney.",
+        "date": "2025-10-01",
+        "image": "https://images.unsplash.com/photo-1604908554021-27b8f9c85f15?q=80&w=1200&auto=format&fit=crop",
+        "baseServings": 2,
+        "macrosPerServing": { "calories": 420, "protein_g": 28, "carbs_g": 36, "fat_g": 18 },
+        "ingredients": [
+          { "name": "Paneer", "amount": 200, "unit": "g", "unitType": "mass" },
+          { "name": "Greek yogurt", "amount": 80, "unit": "g", "unitType": "mass" },
+          { "name": "Tikka spice mix", "amount": 12, "unit": "g", "unitType": "mass" },
+          { "name": "Lemon juice", "amount": 2, "unit": "tbsp", "unitType": "other" },
+          { "name": "Bell pepper, sliced", "amount": 1, "unit": "cup", "unitType": "other" },
+          { "name": "Onion, sliced", "amount": 0.5, "unit": "cup", "unitType": "other" },
+          { "name": "Whole wheat tortillas", "amount": 2, "unit": "pieces", "unitType": "other" },
+          { "name": "Coriander chutney", "amount": 30, "unit": "g", "unitType": "mass" }
+        ],
+        "method": [
+          "Marinate paneer in yogurt, tikka spice, and lemon for 15 mins.",
+          "Sear paneer + veggies on hot pan until charred.",
+          "Warm tortillas, spread chutney, add paneer mix, roll and serve."
+        ],
+        "notes": "Great with pickled onions."
+      },
+      {
+        "slug": "masala-omelette",
+        "name": "Masala Omelette",
+        "tagline": "A protein‑rich breakfast with a spicy kick.",
+        "date": "2025-09-28",
+        "image": "https://images.unsplash.com/photo-1528838063283-5a7e3b7d4a49?q=80&w=1200&auto=format&fit=crop",
+        "baseServings": 2,
+        "macrosPerServing": { "calories": 280, "protein_g": 22, "carbs_g": 5, "fat_g": 19 },
+        "ingredients": [
+          { "name": "Eggs", "amount": 4, "unit": "pieces", "unitType": "other" },
+          { "name": "Onion, finely chopped", "amount": 0.25, "unit": "cup", "unitType": "other" },
+          { "name": "Tomato, finely chopped", "amount": 0.25, "unit": "cup", "unitType": "other" },
+          { "name": "Cilantro", "amount": 2, "unit": "tbsp", "unitType": "other" },
+          { "name": "Green chilies, minced", "amount": 2, "unit": "pieces", "unitType": "other" },
+          { "name": "Salt", "amount": 2, "unit": "g", "unitType": "mass" },
+          { "name": "Ghee", "amount": 10, "unit": "g", "unitType": "mass" }
+        ],
+        "method": [
+          "Beat eggs with veggies and salt.",
+          "Heat ghee, pour eggs, cook until just set.",
+          "Fold and serve hot."
+        ],
+        "notes": "Add cheese for extra protein."
+      },
+      {
+        "slug": "lemon-rice",
+        "name": "South Indian Lemon Rice",
+        "tagline": "Zesty, comforting, and perfect for meal prep.",
+        "date": "2025-09-24",
+        "image": "https://images.unsplash.com/photo-1604908554073-dcd6fd8992f4?q=80&w=1200&auto=format&fit=crop",
+        "baseServings": 2,
+        "macrosPerServing": { "calories": 350, "protein_g": 7, "carbs_g": 60, "fat_g": 9 },
+        "ingredients": [
+          { "name": "Cooked rice", "amount": 300, "unit": "g", "unitType": "mass" },
+          { "name": "Peanuts", "amount": 30, "unit": "g", "unitType": "mass" },
+          { "name": "Curry leaves", "amount": "8–10 leaves", "unit": "text", "unitType": "other" },
+          { "name": "Mustard seeds", "amount": 4, "unit": "g", "unitType": "mass" },
+          { "name": "Turmeric", "amount": 2, "unit": "g", "unitType": "mass" },
+          { "name": "Lemon juice", "amount": 2, "unit": "tbsp", "unitType": "other" }
+        ],
+        "method": [
+          "Tempering: fry mustard, curry leaves, peanuts, turmeric.",
+          "Fold into rice, finish with lemon juice.",
+          "Season and serve."
+        ]
+      }
+    ]
+  }</script>
+
+  <!-- App -->
+  <script>
+    /* =============================
+       Utility: conversions & format
+       ============================= */
+    const MASS_FACTORS = {
+      mg: 1,
+      g: 1000,
+      oz: 28349.523125,
+      lb: 453592.37
+    };
+
+    function isNumber(n){ return typeof n === 'number' && !Number.isNaN(n); }
+
+    function convertMass(amountMg, targetUnit){
+      // Internal base: mg
+      const factor = MASS_FACTORS[targetUnit] || MASS_FACTORS.g;
+      const val = amountMg / factor;
+      // smart rounding: show ints when close, else 1 or 2 decimals based on magnitude
+      const rounded = (val % 1 === 0) ? val : (val < 10 ? +val.toFixed(2) : +val.toFixed(1));
+      return rounded;
+    }
+
+    function toMg(amount, unit){
+      if(unit === 'mg') return amount;
+      if(unit === 'g') return amount * 1000;
+      if(unit === 'oz') return amount * MASS_FACTORS.oz;
+      if(unit === 'lb') return amount * MASS_FACTORS.lb;
+      return null;
+    }
+
+    function formatAmount(amount, unit){
+      if(!isNumber(amount)) return String(amount);
+      const show = (amount % 1 === 0) ? amount : (amount < 10 ? amount.toFixed(2) : amount.toFixed(1));
+      return `${show} ${unit}`;
+    }
+
+    /* =============================
+       Data loading
+       ============================= */
+    const DB = JSON.parse(document.getElementById('recipes-json').textContent);
+
+    /* =============================
+       Rendering: Home
+       ============================= */
+    const homeView = document.getElementById('homeView');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearch = document.getElementById('clearSearch');
+
+    function recipeMatchesQuery(recipe, q){
+      if(!q) return true;
+      q = q.toLowerCase();
+      const text = [
+        recipe.name,
+        recipe.tagline || '',
+        ...(recipe.ingredients||[]).map(i => `${i.name} ${isNumber(i.amount)? i.amount : i.amount} ${i.unit||''}`),
+        ...(recipe.method||[])
+      ].join(' ').toLowerCase();
+      return text.includes(q);
+    }
+
+    function renderHome(){
+      document.getElementById('recipeView').classList.add('hidden');
+      document.getElementById('searchSection').classList.remove('hidden');
+      homeView.classList.remove('hidden');
+      homeView.innerHTML = '';
+
+      const q = searchInput.value.trim();
+      const list = [...DB.recipes]
+        .filter(r => recipeMatchesQuery(r, q))
+        .sort((a,b)=> new Date(b.date) - new Date(a.date))
+        .slice(0,10);
+
+      if(list.length === 0){
+        homeView.innerHTML = `<div class="col-span-full text-center text-muted">No recipes found. Try a different search.</div>`;
+        return;
+      }
+
+      for (const r of list){
+		  const m = r.macrosPerServing || {};
+		  const macroBadge = (m && (m.protein_g != null || m.carbs_g != null || m.fat_g != null || m.calories != null))
+			? `${m.calories ?? '—'} kcal | P ${m.protein_g ?? '—'}g | C ${m.carbs_g ?? '—'}g | F ${m.fat_g ?? '—'}g`
+			: 'Macros N/A';
+
+		  const card = document.createElement('a');
+		  card.href = `#/recipe/${r.slug}`;
+		  card.className = 'card overflow-hidden group hover:shadow-soft transition-shadow';
+		  card.innerHTML = `
+			<div class="aspect-[4/3] overflow-hidden">
+			  <img src="${r.image}" alt="${r.name}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform"/>
+			</div>
+			<div class="p-4">
+			  <h3 class="font-semibold">${r.name}</h3>
+			  <p class="text-sm text-muted mt-1 line-clamp-2">${r.tagline||''}</p>
+			  <div class="mt-3 flex items-center gap-2 text-xs text-muted">
+				<span class="badge">${macroBadge}</span>
+			  </div>
+			</div>`;
+		  homeView.appendChild(card);
+		}
+
+    }
+
+    /* =============================
+       Rendering: Recipe
+       ============================= */
+    const recipeView = document.getElementById('recipeView');
+    const recipeImage = document.getElementById('recipeImage');
+    const recipeTitle = document.getElementById('recipeTitle');
+    const recipeTagline = document.getElementById('recipeTagline');
+    const macroPills = document.getElementById('macroPills');
+    const ingredientList = document.getElementById('ingredientList');
+    const methodList = document.getElementById('methodList');
+    const servingsInput = document.getElementById('servingsInput');
+    const servingMinus = document.getElementById('servingMinus');
+    const servingPlus = document.getElementById('servingPlus');
+    const unitSelect = document.getElementById('unitSelect');
+
+    let currentRecipe = null;
+
+    function renderMacros(recipe){
+      const m = recipe.macrosPerServing || {};
+      macroPills.innerHTML = '';
+      const items = [
+        ['Calories', m.calories, 'kcal'],
+        ['Protein', m.protein_g, 'g'],
+        ['Carbs', m.carbs_g, 'g'],
+        ['Fat', m.fat_g, 'g']
+      ];
+      for(const [label, val, unit] of items){
+        if(val == null) continue;
+        const chip = document.createElement('span');
+        chip.className = 'badge';
+        chip.textContent = `${label}: ${val} ${unit}`;
+        macroPills.appendChild(chip);
+      }
+    }
+
+    function scaledAmount(ing, servings){
+      if(!isNumber(ing.amount)) return ing.amount; // text like "8–10 leaves"
+      const base = currentRecipe.baseServings || 2;
+      const scaled = ing.amount * (servings / base);
+      return scaled;
+    }
+
+    function displayAmount(ing, servings, unitTarget){
+      if(ing.unitType !== 'mass'){
+        // preserve non-convertible units exactly (only scale numbers where applicable)
+        if(isNumber(ing.amount)){
+          const v = scaledAmount(ing, servings);
+          return `${v % 1 === 0 ? v : +v.toFixed(2)} ${ing.unit}`;
+        }
+        return String(ing.amount);
+      }
+      // mass convertible: scale then convert
+      const scaled = scaledAmount(ing, servings);
+      const mg = toMg(scaled, ing.unit);
+      if(mg == null){
+        // fallback: unknown mass unit => show raw
+        return `${scaled} ${ing.unit}`;
+      }
+      const outVal = convertMass(mg, unitTarget);
+      return formatAmount(outVal, unitTarget);
+    }
+
+    function renderIngredients(recipe){
+      ingredientList.innerHTML = '';
+      const servings = +servingsInput.value || recipe.baseServings || 2;
+      const unitTarget = unitSelect.value;
+
+      for(const ing of (recipe.ingredients||[])){
+        const li = document.createElement('li');
+        li.className = 'flex gap-2 items-start';
+        const qty = displayAmount(ing, servings, unitTarget);
+        li.innerHTML = `
+          <span class="min-w-[140px] font-mono text-sm text-muted">${qty}</span>
+          <span class="flex-1">${ing.name}</span>`;
+        ingredientList.appendChild(li);
+      }
+    }
+
+    function renderMethod(recipe){
+      methodList.innerHTML = '';
+      (recipe.method||[]).forEach(step => {
+        const li = document.createElement('li');
+        li.textContent = step;
+        methodList.appendChild(li);
+      });
+    }
+
+    function renderRecipe(slug){
+      const recipe = DB.recipes.find(r => r.slug === slug);
+      if(!recipe){
+        alert('Recipe not found.');
+        window.location.hash = '#/';
+        return;
+      }
+      currentRecipe = recipe;
+
+      // Fill
+      recipeImage.src = recipe.image;
+      recipeImage.alt = recipe.name;
+      recipeTitle.textContent = recipe.name;
+      recipeTagline.textContent = recipe.tagline || '';
+      servingsInput.value = recipe.baseServings || 2;
+      unitSelect.value = 'g';
+      renderMacros(recipe);
+      renderIngredients(recipe);
+      renderMethod(recipe);
+
+      // Toggle views
+      homeView.classList.add('hidden');
+      document.getElementById('searchSection').classList.add('hidden');
+      recipeView.classList.remove('hidden');
+
+      // Update share link
+      document.getElementById('openShare').onclick = (e)=>{
+        e.preventDefault();
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied!');
+      };
+      document.getElementById('openPrint').onclick = (e)=>{
+        e.preventDefault();
+        window.print();
+      };
+    }
+
+    /* =============================
+       Router (#/ and #/recipe/:slug)
+       ============================= */
+    function router(){
+      const hash = window.location.hash || '#/';
+      const parts = hash.slice(2).split('/');
+      if(parts[0] === '' || parts[0] === '#') return renderHome();
+      if(parts[0] === 'recipe' && parts[1]) return renderRecipe(parts[1]);
+      // default
+      renderHome();
+    }
+
+    window.addEventListener('hashchange', router);
+
+    /* =============================
+       Events
+       ============================= */
+    searchInput.addEventListener('input', renderHome);
+    clearSearch.addEventListener('click', ()=>{ searchInput.value=''; renderHome(); });
+    document.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){
+        e.preventDefault(); searchInput.focus(); }
+      if(e.key==='Escape'){ searchInput.value=''; renderHome(); }
+    });
+
+    servingsInput.addEventListener('change', ()=>{ if(+servingsInput.value<1) servingsInput.value=1; renderIngredients(currentRecipe); });
+    servingMinus.addEventListener('click', ()=>{ const v=Math.max(1,(+servingsInput.value||1)-1); servingsInput.value=v; renderIngredients(currentRecipe); });
+    servingPlus.addEventListener('click', ()=>{ const v=(+servingsInput.value||1)+1; servingsInput.value=v; renderIngredients(currentRecipe); });
+    unitSelect.addEventListener('change', ()=> renderIngredients(currentRecipe));
+
+    // About dialog (simple)
+    document.getElementById('open-about').addEventListener('click', ()=>{
+      alert('LetHerCook: A fully static, client-side recipe app. Add recipes by editing the embedded JSON (search for \"recipes-json\"). No backend needed.');
+    });
+
+    // Init
+    router();
+  </script>
+</body>
+</html>

@@ -594,12 +594,6 @@
     servingMinus.addEventListener('click', ()=>{ const v=Math.max(1,(+servingsInput.value||1)-1); servingsInput.value=v; renderIngredients(currentRecipe); });
     servingPlus.addEventListener('click', ()=>{ const v=(+servingsInput.value||1)+1; servingsInput.value=v; renderIngredients(currentRecipe); });
     unitSelect.addEventListener('change', ()=> renderIngredients(currentRecipe));
-
-    // About dialog (simple)
-    document.getElementById('open-about').addEventListener('click', ()=>{
-      alert('LetHerCook: A fully static, client-side recipe app. Add recipes by editing the embedded JSON (search for \"recipes-json\"). No backend needed.');
-    });
-
     // Init
     router();
   </script>

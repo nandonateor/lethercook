@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About - LetHerCook</title>
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: { DEFAULT: '#0b0b0f' },
+            foreground: { DEFAULT: '#e5e7eb' },
+            muted: { DEFAULT: '#9aa4b2' },
+            card: { DEFAULT: '#0f1115' },
+            border: '#1f2430',
+            primary: { DEFAULT: '#0f6b2f', foreground: '#04150f' },
+            ring: '#0f6b2f'
+          },
+          boxShadow: {
+            'soft': '0 4px 24px rgba(0,0,0,0.25)'
+          },
+          borderRadius: {
+            xl: '1rem',
+            '2xl': '1.25rem'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --radius: 12px;
+    }
+    .container-max { max-width: 1120px; }
+    .card { background: #0f1115; border: 1px solid #1f2430; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,.25); }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; border-radius: calc(var(--radius) - 6px); border:1px solid #1f2430; padding:.6rem .9rem; font-weight:600; }
+    .btn-primary { background:#0f6b2f; color:#04150f; border-color:#0f6b2f; }
+    .btn-outline { background:transparent; color:#e5e7eb; }
+    .btn:hover { filter: brightness(1.03); }
+    .input, .select { background:#0b0b0f; border:1px solid #1f2430; border-radius: calc(var(--radius) - 6px); padding:.65rem .8rem; color:#e5e7eb; outline:none; }
+    .input:focus, .select:focus { box-shadow: 0 0 0 2px #0f6b2f; border-color:#0f6b2f; }
+    .label { color:#9aa4b2; font-size:.85rem; }
+    .badge { border:1px solid #1f2430; background:#0b0b0f; border-radius:9999px; padding:.25rem .6rem; font-size:.8rem; color:#9aa4b2; }
+    .kbd { border:1px solid #1f2430; background:#0b0b0f; border-bottom-width:3px; padding:.1rem .35rem; border-radius:.4rem; font-size:.75rem; color:#9aa4b2; }
+    .visually-hidden { position:absolute; clip:rect(0 0 0 0); clip-path:inset(50%); width:1px; height:1px; overflow:hidden; white-space:nowrap; }
+    .gallery-img { transition: transform 0.2s; }
+    .gallery-img:hover { transform: scale(1.03); }
+  </style>
+</head>
+<body class="bg-background text-foreground min-h-screen">
+  <!-- Header -->
+  <header class="border-b border-border sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+    <div class="mx-auto container-max px-4 py-4 flex items-center gap-4">
+      <a href="index.html#/" class="flex items-center gap-3 font-semibold tracking-tight">
+        <span class="inline-flex h-15 w-15 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-soft">🥘</span>
+        <span class="text-xl">LetHerCook</span>
+      </a>
+      <div class="ml-auto flex items-center gap-2">
+        <a href="index.html#/" class="btn btn-outline">Home</a>
+        <a href="about.html" class="btn btn-outline btn-primary">About</a>
+        <a href="mailto:nxs16696@gmail.com?subject=LetHerCook&body=Hi Nandini, ..." target="_blank" class="btn btn-primary">Share your thoughts!</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main About Section -->
+  <main class="mx-auto container-max px-4 py-10">
+    <section class="card p-8 mb-10">
+      <h1 class="text-3xl font-bold mb-4">About LetHerCook</h1>
+      <p class="text-lg mb-3 text-muted">LetHerCook is a fully static, client-side recipe app made by Nandini for friends, family, and everyone who loves delicious, nutritious, and creative food!</p>
+      <ul class="list-disc list-inside text-muted mb-4">
+        <li>No logins, no ads, no backend—just pure food inspiration and nutrition info.</li>
+        <li>Every recipe is curated and tested by Nandini (and sometimes her family!).</li>
+        <li>You can search by name, author, ingredients, or method—just start typing.</li>
+        <li>Nutrition macros and adjustable servings for every recipe.</li>
+        <li>Want to contribute or request a recipe? Just <a href="mailto:nxs16696@gmail.com?subject=LetHerCook%20Feedback" class="underline text-primary">email Nandini</a>!</li>
+      </ul>
+      <p class="text-muted">This is a passion project to make nutrition delicious and accessible. Thank you for visiting 💖</p>
+    </section>
+
+    <!-- Gallery Section -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-6 text-center">Photo Gallery</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <!-- Gallery Images: Use your actual recipe or food photos here -->
+        <div class="card overflow-hidden">
+          <img src="https://lovelydelites.com/wp-content/uploads/2024/10/IMG_1641-2-500x500.jpg" alt="Vodka Chickpea Pasta" class="w-full h-60 object-cover gallery-img"/>
+          <div class="p-3 text-muted text-sm">Vodka Chickpea Pasta</div>
+        </div>
+        <div class="card overflow-hidden">
+          <img src="https://themagicsaucepan.com/wp-content/uploads/2018/06/20180607-Peanut-chutney-0575-500x375.jpg" alt="Peanut Chutney" class="w-full h-60 object-cover gallery-img"/>
+          <div class="p-3 text-muted text-sm">Peanut Chutney</div>
+        </div>
+        <div class="card overflow-hidden">
+          <img src="https://www.sujatafoods.com/wp-content/uploads/2025/04/ShahiPaneer-770w.jpg" alt="Shahi Paneer" class="w-full h-60 object-cover gallery-img"/>
+          <div class="p-3 text-muted text-sm">Shahi Paneer</div>
+        </div>
+        <div class="card overflow-hidden">
+          <img src="https://www.vegrecipesofindia.com/wp-content/uploads/2018/10/lobia-recipe-1-500x500.jpg" alt="Lobhia Dal" class="w-full h-60 object-cover gallery-img"/>
+          <div class="p-3 text-muted text-sm">Lobhia Dal</div>
+        </div>
+        <!-- Add more images as you wish -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-12 border-t border-border">
+    <div class="mx-auto container-max px-4 py-10 text-center text-muted">
+      <p>Just a passion project to make nutrition delicious and accessible to my friends and family 💖</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -70,7 +70,7 @@
     <!-- Search Bar -->
     <section id="searchSection" class="mb-6">
       <label class="label" for="searchInput">Search recipes
-        <span class="ml-2 badge">name, ingredients, method</span>
+        <span class="ml-2 badge">name, author, ingredients, method</span>
       </label>
       <div class="mt-2 flex gap-2">
         <input id="searchInput" class="input w-full" placeholder="Type to search" />
@@ -88,8 +88,8 @@
           <img id="recipeImage" alt="Recipe image" class="w-full md:w-80 h-56 md:h-56 object-cover rounded-xl border border-border" />
           <div class="flex-1">
             <h1 id="recipeTitle" class="text-2xl md:text-3xl font-semibold tracking-tight"></h1>
-            <p id="recipeTagline" class="text-muted mt-1"></p>
-            <p id="recipeAuthor" class="text-muted mt-1"></p> <!-- Author line for recipe page -->
+             <p id="recipeAuthor" class="text-muted mt-1"></p>
+			 <p id="recipeTagline" class="text-muted mt-1"></p>
 
             <!-- Controls: Servings + Unit -->
             <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -131,7 +131,7 @@
           </section>
           <!-- Method -->
           <section>
-            <h3 class="text-lg font-semibold">Preparation</h3>
+            <h3 class="text-lg font-semibold">Method</h3>
             <ol id="methodList" class="mt-3 space-y-3 list-decimal list-inside"></ol>
           </section>
         </div>
@@ -158,8 +158,8 @@
 	 {
   "slug": "vodka-chickpea-penne",
   "name": "Creamy Vodka Chickpea Penne",
+  "author": "Nandini",	
   "tagline": "Italian | High Protein | Vegetarian",
-  "author": "Nandini",                          // <-- ADDED author property
   "date": "2025-10-04",
   "image": "https://lovelydelites.com/wp-content/uploads/2024/10/IMG_1641-2-500x500.jpg",
   "baseServings": 1,
@@ -193,9 +193,9 @@
 },
 	  {
 	  "slug": "peanut-chutney",
-	  "name": "Mumma's Peanut Chutney",
+	  "name": "Peanut Chutney",
+	  "author": "Neeta",	
 	  "tagline": "South Indian | Chutney | Vegetarian",
-	  "author": "Mumma",                         // <-- ADDED author property
 	  "date": "2025-10-02",
 	  "image": "https://themagicsaucepan.com/wp-content/uploads/2018/06/20180607-Peanut-chutney-0575-500x375.jpg",
 	  "baseServings": 4,
@@ -225,9 +225,9 @@
 	},
 	  {
   "slug": "shahi-paneer",
-  "name": "Mumma's Shahi Paneer",
+  "name": "Shahi Paneer",
+  "author": "Neeta",	
   "tagline": "North Indian | Curry | Vegetarian",
-  "author": "Mumma",                       // <-- ADDED author property
   "date": "2025-10-04",
   "image": "https://www.sujatafoods.com/wp-content/uploads/2025/04/ShahiPaneer-770w.jpg",
   "baseServings": 4,
@@ -261,9 +261,9 @@
 },
 		{
 	  "slug": "lobhia",
-	  "name": "Mumma's Lobhia Dal",
+	  "name": "Lobhia Dal",
+	  "author": "Neeta",	
 	  "tagline": "Indian | Curry | Vegetarian",
-	  "author": "Mumma",                       // <-- ADDED author property
 	  "date": "2025-10-02",
 	  "image": "https://www.vegrecipesofindia.com/wp-content/uploads/2018/10/lobia-recipe-1-500x500.jpg",
 	  "baseServings": 4,
@@ -355,8 +355,8 @@
       q = q.toLowerCase();
       const text = [
         recipe.name,
+		recipe.author,
         recipe.tagline || '',
-        recipe.author || '', // include author in search
         ...(recipe.ingredients||[]).map(i => `${i.name} ${isNumber(i.amount)? i.amount : i.amount} ${i.unit||''}`),
         ...(recipe.method||[])
       ].join(' ').toLowerCase();
@@ -395,9 +395,8 @@
 			</div>
 			<div class="p-4">
 			  <h3 class="font-semibold">${r.name}</h3>
+			  <p class="text-sm text-muted mt-1 line-clamp-2">${r.author}</p>
 			  <p class="text-sm text-muted mt-1 line-clamp-2">${r.tagline||''}</p>
-			  <p class="text-sm text-muted mt-1 line-clamp-2">${r.author||''}</p>
-			  <p class="text-xs text-muted mt-1">By ${r.author}</p>
 			  <div class="mt-3 flex items-center gap-2 text-xs text-muted">
 				<span class="badge">${macroBadge}</span>
 			  </div>
@@ -413,8 +412,8 @@
     const recipeView = document.getElementById('recipeView');
     const recipeImage = document.getElementById('recipeImage');
     const recipeTitle = document.getElementById('recipeTitle');
+	const recipeAuthor = document.getElementById('recipeAuthor');
     const recipeTagline = document.getElementById('recipeTagline');
-    const recipeAuthor = document.getElementById('recipeAuthor'); // <-- get the author line
     const macroPills = document.getElementById('macroPills');
     const ingredientList = document.getElementById('ingredientList');
     const methodList = document.getElementById('methodList');
@@ -508,8 +507,8 @@
       recipeImage.src = recipe.image;
       recipeImage.alt = recipe.name;
       recipeTitle.textContent = recipe.name;
+	  recipeAuthor.textContent = recipe.author;
       recipeTagline.textContent = recipe.tagline || '';
-      recipeAuthor.textContent = recipe.author;
       servingsInput.value = recipe.baseServings || 2;
       unitSelect.value = 'g';
       renderMacros(recipe);
